@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Career Management</title>
+</head>
+<head th:replace="~{fragments/head :: fragment-head}"></head>
+<body>
+
+
+<div class="container justify-content-center">
+
+    <!-- Content Area -->
+
+    <div class="input-form-backgroud row justify-content-center">
+        <div class="py-2 text-center">
+            <h2>회원 로그인</h2>
+        </div>
+        <div class="row justify-content-center">
+            <form class="needs-validation col-sm-6"
+                  th:action="@{/login_proc}" th:object="${signInForm}" method="post" novalidate>
+
+                <th:block th:if="${error}" class="form-group mb-3">
+                    <div class="form-group mb-3 alert alert-danger" role="alert" th:text="${message}"></div>
+                </th:block>
+
+                <div class="form-group mb-3">
+                    <label th:for="userid">아이디</label>
+                    <input type="text" th:field="*{userid}" class="form-control"
+                           placeholder="userid" aria-describedby="useridHelp" required minlength="3" maxlength="20">
+                    <small class="invalid-feedback">아이디를 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('userid')}" th:errors="*{userid}">UserID Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label th:for="password">패스워드</label>
+                    <input type="password" th:field="*{password}" class="form-control"
+                           aria-describedby="passwordHelp" required minlength="4" maxlength="50"
+                           autocomplete="off">
+                    <small class="invalid-feedback">패스워드를 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <input class="form-check-input" type="checkbox" value="yes" name="remember-me" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        로그인정보 저장하기
+                    </label>
+                </div>
+
+                <div class="d-grid gap-2 col-6 mx-auto mt-4">
+                    <button class="btn btn-primary" type="submit"
+                            aria-describedby="submitHelp">로그인하기</button>
+                    <a th:href="@{/auth/signup}" class="btn btn-success btn-block" type="button">회원가입하기</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content Area END -->
+
+
+</div><!-- <div class="container justify-content-center"> -->
+
+</body>
+</html>

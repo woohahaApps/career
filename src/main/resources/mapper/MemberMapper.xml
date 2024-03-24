@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.woohahaapps.career.mapper.MemberMapper">
+    <!-- C:Create insert -->
+    <insert id="createMember" parameterType="Member">
+        insert into member
+            (id, name, password, email, role, "create", creator)
+        values
+            (#{id}, #{name}, #{password}, #{email}, #{role}, now(), #{creator})
+    </insert>
+    <!-- R:Read select -->
+    <select id="selectMember" resultType="Member">
+        select
+            *
+        from member
+        where
+            id = #{id}
+    </select>
+    <!-- U:Update update -->
+    <update id="updateMember" parameterType="Member">
+        update member
+        set
+            name = #{name}
+            , password = #{password}
+            , email = #{email}
+            , role = #{role}
+            , validated = #{validated}
+            , modify = now()
+            , modifier = #{modifier}
+        where
+            id = #{id}
+    </update>
+    <!-- D:Delete delete -->
+    <delete id="deleteMember">
+        delete from member
+        where
+            id = #{id}
+    </delete>
+    <!-- R:Read select multiple -->
+    <select id="selectAllMember" resultType="Member">
+        select
+            *
+        from member
+        order by
+            name
+        limit #{count_per_page}
+        offset (#{current_page} - 1) * #{count_per_page}
+    </select>
+    <select id="selectCount">
+        select
+            count(id)
+        from member
+    </select>
+</mapper>

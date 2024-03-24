@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" data-bs-theme="light">
+<head th:replace="~{fragments/head :: fragment-head}"></head>
+<body>
+
+<div class="container justify-content-center">
+
+    <!-- Content Area -->
+
+    <div class="input-form-backgroud row justify-content-center">
+        <div class="py-2 text-center">
+            <h2>회원 가입</h2>
+        </div>
+        <div class="row justify-content-center">
+            <form id="inputForm" class="needs-validation col-sm-6"
+                  th:action="@{/auth/signup}" th:object="${signUpForm}" method="post" novalidate>
+
+                <th:block th:if="${error}" class="form-group mb-3">
+                    <div class="form-group mb-3 alert alert-danger" role="alert" th:text="${error}"></div>
+                </th:block>
+
+                <div class="form-group mb-3">
+                    <label th:for="userid">아이디</label>
+                    <input type="text" th:field="*{userid}" class="form-control"
+                           placeholder="userid" aria-describedby="useridHelp" required minlength="3" maxlength="20">
+                    <small id="useridHelp" class="form-text text-muted">
+                        공백없이 문자와 숫자로만 3자 이상 20자 이내로 입력하세요. 가입후에 변경할 수 없습니다.
+                    </small>
+                    <small class="invalid-feedback">아이디를 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('userid')}" th:errors="*{userid}">UserID Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label th:for="username">이름</label>
+                    <input type="text" th:field="*{username}" class="form-control"
+                           placeholder="username" aria-describedby="usernameHelp" required minlength="3" maxlength="20">
+                    <small id="usernameHelp" class="form-text text-muted">
+                        공백없이 문자와 숫자로만 3자 이상 20자 이내로 입력하세요. 가입후에 변경할 수 있습니다.
+                    </small>
+                    <small class="invalid-feedback">이름을 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">UserName Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label th:for="email">이메일</label>
+                    <input type="email" th:field="*{email}" class="form-control"
+                           placeholder="your@email.com" aria-describedby="emailHelp" required>
+                    <small id="emailHelp" class="form-text text-muted">
+                        사용자의 이메일은 공개되지 않습니다.
+                    </small>
+                    <small class="invalid-feedback">이메일을 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label th:for="password">패스워드</label>
+                    <input type="password" th:field="*{password}" class="form-control"
+                           aria-describedby="passwordHelp" required minlength="4" maxlength="50"
+                           autocomplete="off"
+                           onchange="isMatchPassword()"
+                    >
+                    <small id="passwordHelp" class="form-text text-muted">
+                        4자 이상 50자 이내로 입력하세요. 영문자, 숫자, 특수기호를 사용할 수 있으며 공백은 사용할 수 없습니다.
+                    </small>
+                    <small class="invalid-feedback">패스워드를 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label th:for="password_confirm">패스워드 확인</label>
+                    <input type="password" th:field="*{password_confirm}" class="form-control"
+                           aria-describedby="passwordConfirmHelp" required minlength="4" maxlength="50"
+                           autocomplete="off"
+                           onkeyup="isMatchPassword()"
+                    >
+                    <small id="passwordConfirmHelp" class="form-text text-muted">
+                        입력한 패스워드를 확인합니다.
+                    </small>
+                    <small class="invalid-feedback">입력한 패스워드와 동일하게 패스워드 확인을 입력하세요.</small>
+                    <small class="form-text text-danger" th:if="${#fields.hasErrors('password_confirm')}" th:errors="*{password_confirm}">PasswordConfirm Error</small>
+                </div>
+
+                <div class="d-grid gap-2 col-6 mx-auto">
+                    <button id="submit" class="btn btn-primary btn-block" type="button"
+                            aria-describedby="submitHelp">
+                        <span id="spinner" class="spinner-border spinner-border-sm visually-hidden" role="status"></span>
+                        가입하기
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Content Area END -->
+
+
+</div><!-- <div class="container justify-content-center"> -->
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        $("#submit").off().on("click", function(e){
+            return sendData();
+        });
+    });
+
+    function isMatchPassword() {
+        let password = document.getElementById("password");
+        let password_confirm = document.getElementById("password_confirm");
+        //console.log("password = " + password.value + ", password_confirm = " + password_confirm.value);
+        if (password_confirm.value !== password.value) {
+            password_confirm.setCustomValidity("Password 가 일치하지 않습니다.");
+            return false;
+        } else {
+            password_confirm.setCustomValidity("");// isMatched
+        }
+        return true;
+    }
+
+    function sendData() {
+        let submitbutton = $("#submit");
+        let spinner = $("#spinner");
+
+        let token = $("meta[name='_csrf']").attr("content");
+        let header = $("meta[name='_csrf_header']").attr("content");
+
+        let form = $("#inputForm");
+
+        if (form[0].checkValidity() && isMatchPassword()) {
+            // disable UI
+            submitbutton.prop('disabled', true);
+            spinner.removeClass('visually-hidden');
+            console.log("UI disabled");
+
+            try {
+                // ajax
+                let data = form.serialize();
+                console.log(data);
+
+                $.ajax({
+                    url: '/auth/signup',
+                    type: 'post',
+                    data: data,
+                    //async: false,// 동기처리
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader(header, token);
+                    },
+                    success: function (res) {
+                        console.log("success");
+                        console.log(res);
+                        // enable UI
+                        spinner.addClass('visually-hidden');
+                        submitbutton.prop('disabled', false);
+                        console.log("UI enabled");
+                        window.location.href = "/auth/signin";
+                    },
+                    error: function (res) {
+                        console.log("error");
+                        console.log(typeof res);
+                        console.log(res);// json object
+                        console.log(res.responseJSON);
+                        if (res.responseJSON.body) {
+                            alert(res.responseJSON.body.detail);
+                        } else {
+                            if (res.responseJSON.detail) {
+                                alert(res.responseJSON.detail);
+                            } else {
+                                alert(res.responseJSON.error);
+                            }
+                        }
+
+                        console.log("alert clicked");
+                        // enable UI
+                        spinner.addClass('visually-hidden');
+                        submitbutton.prop('disabled', false);
+                        console.log("UI enabled");
+                    }
+                });
+            } catch (e) {
+                console.log("exception");
+                console.log(e);
+                alert(e);
+                // enable UI
+                spinner.addClass('visually-hidden');
+                submitbutton.prop('disabled', false);
+                console.log("UI enabled");
+            } finally {
+            }
+        } else {
+            //form[0].reportValidity();
+            form[0].classList.add('was-validated');
+            return false;
+        }
+    }
+</script>
+
+</body>
+</html>
